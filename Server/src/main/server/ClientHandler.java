@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.HashSet;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -15,6 +16,7 @@ public class ClientHandler implements Runnable, Observer {
     private Socket clientSocket;
     private BufferedReader fromClient;
     private PrintWriter toClient;
+    private String username;
 
     public ClientHandler(Server server, Socket clientSocket) {
         this.server = server;
@@ -70,8 +72,12 @@ public class ClientHandler implements Runnable, Observer {
         System.out.println("Sending to client");
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
-        toClient.println(gson.toJson(arg));
-        toClient.flush();
+        if(arg instanceof HashSet<?>) {
+            for (Item i : (HashSet<Item>) arg) {
+                toClient.println(gson.toJson(i));
+            }
+            toClient.flush();
+        }
 
     }
 }

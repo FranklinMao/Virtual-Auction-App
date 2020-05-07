@@ -1,24 +1,44 @@
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.lang.reflect.Type;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Observable;
+import java.util.*;
 
 public class Server extends Observable {
+    private HashSet<Item> items;
     public static void main(String[] args){
 
         new Server().runServer();
     }
 
+    public Server() {
+        items = new HashSet<>();
+    }
+
     private void runServer() {
         try {
+            Init();
             setUpNetworking();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void Init() throws FileNotFoundException {
+        File file = new File("src/main/server/Items.txt");
+        Scanner scan = new Scanner(file);
+        String line;
+
+        Gson gson = new Gson();
+        while(scan.hasNextLine()) {
+            line = scan.nextLine();
+            items.add(gson.fromJson(line, Item.class));
+
+        }
+
     }
 
     private void setUpNetworking() throws Exception {
@@ -40,7 +60,7 @@ public class Server extends Observable {
         Item item = gson.fromJson(input, Item.class);
         System.out.println(item.toString());
         this.setChanged();              //server has changed
-        this.notifyObservers(item);         //update all clients
+        this.notifyObservers(items);         //update all clients
     }
 }
 

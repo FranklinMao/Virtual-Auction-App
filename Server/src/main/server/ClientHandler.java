@@ -1,3 +1,11 @@
+/*
+ *  EE422C Final Project submission by
+ *  Replace <...> with your actual data.
+ *  <Franklin Mao>
+ *  <fm8487>
+ *  <16295>
+ *  Spring 2020
+ */
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 

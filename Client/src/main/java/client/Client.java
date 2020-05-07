@@ -10,10 +10,13 @@ package client;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 import java.io.BufferedReader;
@@ -28,6 +31,7 @@ public class Client extends Application {
     private BufferedReader fromServer;
     private PrintWriter toServer;
     private Controller controller;
+    private String username;
     private HashSet<Item> items = new HashSet<>();
     public static void main(String[] args) {
 
@@ -47,8 +51,9 @@ public class Client extends Application {
                     System.out.println("From server: " + input);
                     Gson gson = new Gson();
                     Item item = gson.fromJson(input, Item.class);
-                    items.add(item);
-                    controller.updateItems(items);
+                    if(!items.contains(item))           //TODO: Need to make sure it correctly detects duplicates, hashmap?
+                        items.add(item);
+                    Platform.runLater(() -> controller.updateItems(items));
 
                 }
             } catch (Exception e) {
@@ -60,18 +65,19 @@ public class Client extends Application {
         Thread writerT = new Thread(() -> {
             //while (true) {
             Item item = new Item("test", "test", 5.00, 10.00);
-            GsonBuilder builder = new GsonBuilder();
-            Gson gson = builder.create();
-            sentToServer(gson.toJson(item));
+
+            sentToServer(item);
             //}
         });
         readerT.start();
         writerT.start();
     }
 
-    protected void sentToServer(String toJson) {
+    protected void sentToServer(Item toJson) {
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
         System.out.println("Sending to server: " + toJson);
-        toServer.println(toJson);
+        toServer.println(gson.toJson(toJson));
         toServer.flush();
     }
 
@@ -96,6 +102,23 @@ public class Client extends Application {
 
         Parent root = loader.load(); //load FXML info
         controller = loader.getController();
+
+        Stage loginStage = new Stage();
+        FXMLLoader loginLoader = new FXMLLoader(getClass().getResource("/login.fxml"));
+        AnchorPane rootLayout = (AnchorPane) loginLoader.load();
+        Scene loginScene = new Scene(rootLayout);
+        loginStage.setScene(loginScene);
+        loginStage.setAlwaysOnTop(true);
+        loginStage.show();
+        LoginController loginController = loginLoader.getController();
+        loginController.loggedInProperty().addListener((obs, wasLoggedIn, isNowLoggedIn) -> {
+            if(isNowLoggedIn) {
+                username = loginController.usernameField.getText(); //set username to the inputted name at login
+                loginStage.hide();
+                sentToServer(new Item("username", username, 0,0));
+            }
+        });
+
 
         Scene scene = new Scene(root, 1200, 700); //set window size
         setUpNetworking();

@@ -17,6 +17,7 @@ import java.util.*;
 
 public class Server extends Observable {
     private HashSet<Item> items;
+    private HashSet<String> usernames;
     public static void main(String[] args){
 
         new Server().runServer();
@@ -24,6 +25,7 @@ public class Server extends Observable {
 
     public Server() {
         items = new HashSet<>();
+        usernames = new HashSet<>();
     }
 
     private void runServer() {
@@ -67,6 +69,9 @@ public class Server extends Observable {
         Gson gson = new Gson();
         Item item = gson.fromJson(input, Item.class);
         System.out.println(item.toString());
+        if(item.getName().equals("username")) {
+            usernames.add(item.getDescription());
+        }
         this.setChanged();              //server has changed
         this.notifyObservers(items);         //update all clients
     }

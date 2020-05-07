@@ -1,4 +1,5 @@
 package client;
+
 /*
  *  EE422C Final Project submission by
  *  Replace <...> with your actual data.
@@ -9,11 +10,11 @@ package client;
  */
 public class Item {
     private String name;
+
     private String description;
     private double minPrice;
     private double endTime;
     private double currPrice;
-
     public Item(String name, String description, double minPrice, double endTime) {
         this.name = name;
         this.description = description;
@@ -30,5 +31,25 @@ public class Item {
                 ", minPrice=" + minPrice +
                 ", endTime=" + endTime +
                 '}';
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public double getMinPrice() {
+        return minPrice;
+    }
+
+    public double getEndTime() {
+        return endTime;
+    }
+
+    public double getCurrPrice() {
+        return currPrice;
     }
 }

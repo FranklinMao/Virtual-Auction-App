@@ -7,18 +7,16 @@ package client;
  *  <16295>
  *  Spring 2020
  */
-import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
-import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
-import javafx.stage.Stage;
 
-import java.net.URL;
-import java.util.HashSet;
-import java.util.ResourceBundle;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class Controller {
@@ -34,14 +32,15 @@ public class Controller {
 
 
 
-    public synchronized void updateItems(HashSet<Item> items) {
+    public synchronized void updateItems(Map<String, Item> items) {
+        ObservableMap<String, Item> map = FXCollections.observableHashMap();
         ObservableList<Item> observableItems = FXCollections.observableArrayList();
-        observableItems.addAll(items);
+
         StringBuilder fullList = new StringBuilder();
         synchronized (this) {
-            for (Item i : items) {
-                fullList.append(i.toString()).append("\n");
-
+            for (Map.Entry<String, Item> entry : items.entrySet()) {
+                fullList.append(entry.toString()).append("\n");
+                observableItems.add(entry.getValue());
             }
         }
         itemsList.setItems(observableItems);

@@ -11,12 +11,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 import java.io.BufferedReader;
@@ -24,7 +22,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 public class Client extends Application {
     private static String host = "localhost";
@@ -32,7 +32,7 @@ public class Client extends Application {
     private PrintWriter toServer;
     private Controller controller;
     private String username;
-    private HashSet<Item> items = new HashSet<>();
+    private Map<String, Item> items = new HashMap<>();
     public static void main(String[] args) {
 
         launch(args);
@@ -51,8 +51,8 @@ public class Client extends Application {
                     System.out.println("From server: " + input);
                     Gson gson = new Gson();
                     Item item = gson.fromJson(input, Item.class);
-                    if(!items.contains(item))           //TODO: Need to make sure it correctly detects duplicates, hashmap?
-                        items.add(item);
+                    items.put(item.getName(), item);          //TODO: Need to make sure it correctly detects duplicates, hashmap?
+
                     Platform.runLater(() -> controller.updateItems(items));
 
                 }

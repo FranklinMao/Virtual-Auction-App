@@ -5,9 +5,10 @@
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.Controller">
    <children>
-      <HBox layoutX="72.0" layoutY="14.0" prefHeight="170.0" prefWidth="498.0">
+      <HBox layoutX="15.0" layoutY="14.0" prefHeight="170.0" prefWidth="569.0">
          <children>
             <ListView prefHeight="164.0" prefWidth="200.0" />
+            <TextArea fx:id="historyField" prefHeight="170.0" prefWidth="307.0" promptText="Auction Log" />
          </children></HBox>
       <Button fx:id="quitButton" layoutX="523.0" layoutY="336.0" mnemonicParsing="false" onAction="#quitButton" prefHeight="49.0" prefWidth="62.0" text="QUIT" textFill="#b50a0a" />
    </children>

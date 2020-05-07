@@ -10,6 +10,7 @@ package client;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -20,18 +21,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.HashSet;
 
 public class Client extends Application {
     private static String host = "localhost";
     private BufferedReader fromServer;
     private PrintWriter toServer;
-
+    private Controller controller;
+    private HashSet<Item> items = new HashSet<>();
     public static void main(String[] args) {
-        try {
-            new Client().setUpNetworking();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
         launch(args);
     }
 
@@ -48,7 +47,8 @@ public class Client extends Application {
                     System.out.println("From server: " + input);
                     Gson gson = new Gson();
                     Item item = gson.fromJson(input, Item.class);
-                    System.out.println(item.toString());
+                    items.add(item);
+                    controller.updateItems(items);
 
                 }
             } catch (Exception e) {
@@ -92,7 +92,11 @@ public class Client extends Application {
      */
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/view.fxml")); //load FXML info
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view.fxml"));
+
+        Parent root = loader.load(); //load FXML info
+        controller = loader.getController();
+
         Scene scene = new Scene(root, 1200, 700); //set window size
         setUpNetworking();
         primaryStage.setTitle("Auction Client");

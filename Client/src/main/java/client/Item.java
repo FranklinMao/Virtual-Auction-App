@@ -25,7 +25,8 @@ public class Item {
     @Override
     public String toString() {
         return "Item{" +
-                "description='" + description + '\'' +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
                 ", minPrice=" + minPrice +
                 ", endTime=" + endTime +
                 '}';

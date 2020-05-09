@@ -29,7 +29,7 @@ import java.util.Map;
 public class Client extends Application {
     private static String host = "localhost";
     private BufferedReader fromServer;
-    private PrintWriter toServer;
+    private static PrintWriter toServer;
     private Controller controller;
     private String username;
     private Map<String, Item> items = new HashMap<>();
@@ -48,13 +48,15 @@ public class Client extends Application {
 
             try {
                 while (((input = fromServer.readLine()) != null)) {
-                    System.out.println("From server: " + input);
-                    Gson gson = new Gson();
-                    Item item = gson.fromJson(input, Item.class);
-                    items.put(item.getName(), item);          //TODO: Need to make sure it correctly detects duplicates, hashmap?
+                    synchronized (this) {
+                        System.out.println("From server: " + input);
+                        Gson gson = new Gson();
+                        Item item = gson.fromJson(input, Item.class);
+                        System.out.println(item.toString());
+                        items.put(item.getName(), item);          //TODO: Need to make sure it correctly detects duplicates, hashmap?
 
-                    Platform.runLater(() -> controller.updateItems(items));
-
+                        Platform.runLater(() -> controller.updateItems(items));
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -63,17 +65,39 @@ public class Client extends Application {
 
         });
         Thread writerT = new Thread(() -> {
-            //while (true) {
-            Item item = new Item("test", "test", 5.00, 10.00);
+            while (true) {
+                System.out.println("writer is working");
+                synchronized (controller) {
+                    try {
+                        controller.wait();
 
-            sentToServer(item);
-            //}
+                        sentToServer(controller.request);
+
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                //synchronized (controller)
+
+//                while(!controller.activeRequest){
+//                    //Thread.sleep(100);
+//                }
+                //toServer.wait();
+//                synchronized (controller.activeRequest) {
+//                    System.out.println("bid works!");
+//                    controller.activeRequest.lock();
+//                    sentToServer(controller.request);
+//                    System.out.println("request success!");
+//                    System.out.println(controller.request.toString());
+               // }
+            }
         });
         readerT.start();
         writerT.start();
     }
 
-    protected void sentToServer(Item toJson) {
+    protected static void sentToServer(Object toJson) {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
         System.out.println("Sending to server: " + toJson);
@@ -113,9 +137,11 @@ public class Client extends Application {
         LoginController loginController = loginLoader.getController();
         loginController.loggedInProperty().addListener((obs, wasLoggedIn, isNowLoggedIn) -> {
             if(isNowLoggedIn) {
+                System.out.println("a new username exists");
                 username = loginController.usernameField.getText(); //set username to the inputted name at login
+                controller.username = username;
                 loginStage.hide();
-                sentToServer(new Item("username", username, 0,0));
+                sentToServer(new Command("USER:", username, "", 0));    //TODO: check if username is valid/no duplicates
             }
         });
 

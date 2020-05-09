@@ -15,9 +15,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.HashSet;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 
 public class ClientHandler implements Runnable, Observer {
     private Server server;
@@ -76,13 +74,13 @@ public class ClientHandler implements Runnable, Observer {
         this.sendToClient(arg);
     }
 
-    protected void sendToClient(Object arg) {
+    protected synchronized void sendToClient(Object arg) {
         System.out.println("Sending to client");
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
-        if(arg instanceof HashSet<?>) {
-            for (Item i : (HashSet<Item>) arg) {
-                toClient.println(gson.toJson(i));
+        if(arg instanceof HashMap<?,?>) {   //send all items in server to client
+            for (Map.Entry<?,?> i : ((HashMap<?, ?>) arg).entrySet()) {
+                toClient.println(gson.toJson(i.getValue()));
             }
             toClient.flush();
         }

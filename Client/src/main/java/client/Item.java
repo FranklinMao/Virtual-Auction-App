@@ -14,23 +14,19 @@ public class Item {
     private String description;
     private double minPrice;
     private double endTime;
+
+    private double maxPrice;    //once bidding reaches this price, item is sold
+
     private double currPrice;
-    public Item(String name, String description, double minPrice, double endTime) {
+
+
+    public Item(String name, String description, double minPrice, double endTime, double maxPrice) {
         this.name = name;
         this.description = description;
         this.minPrice = minPrice;
         this.endTime = endTime;
         currPrice = minPrice;
-    }
-
-    @Override
-    public String toString() {
-        return "Item{" +
-                "name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", minPrice=" + minPrice +
-                ", endTime=" + endTime +
-                '}';
+        this.maxPrice = maxPrice;
     }
 
     public String getName() {
@@ -39,6 +35,9 @@ public class Item {
 
     public String getDescription() {
         return description;
+    }
+    public double getMaxPrice() {
+        return maxPrice;
     }
 
     public double getMinPrice() {
@@ -51,5 +50,21 @@ public class Item {
 
     public double getCurrPrice() {
         return currPrice;
+    }
+
+    public void setCurrPrice(double currPrice) {
+        this.currPrice = currPrice;
+    }
+
+    @Override
+    public String toString() {
+        return "Item{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", minPrice=" + minPrice +
+                ", endTime=" + endTime +
+                ", maxPrice=" + maxPrice +
+                ", currPrice=" + currPrice +
+                '}';
     }
 }

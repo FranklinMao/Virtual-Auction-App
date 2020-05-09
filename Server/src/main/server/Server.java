@@ -7,16 +7,14 @@
  *  Spring 2020
  */
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import java.io.*;
-import java.lang.reflect.Type;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
 
 public class Server extends Observable {
-    private HashSet<Item> items;
+    private HashMap<String, Item> items;
     private HashSet<String> usernames;
     public static void main(String[] args){
 
@@ -24,7 +22,7 @@ public class Server extends Observable {
     }
 
     public Server() {
-        items = new HashSet<>();
+        items = new HashMap<>();
         usernames = new HashSet<>();
     }
 
@@ -37,7 +35,7 @@ public class Server extends Observable {
         }
     }
 
-    private void Init() throws FileNotFoundException {
+    private synchronized void Init() throws FileNotFoundException {
         File file = new File("src/main/server/Items.txt");
         Scanner scan = new Scanner(file);
         String line;
@@ -45,7 +43,8 @@ public class Server extends Observable {
         Gson gson = new Gson();
         while(scan.hasNextLine()) {
             line = scan.nextLine();
-            items.add(gson.fromJson(line, Item.class));
+            Item initialItem = gson.fromJson(line, Item.class);
+            items.put(initialItem.getName(), initialItem);
 
         }
 
@@ -61,16 +60,35 @@ public class Server extends Observable {
             this.addObserver(handler);
             Thread t = new Thread(handler);
             t.start();
-
         }
     }
 
     protected void processRequest(String input) {
         Gson gson = new Gson();
+        Command command = gson.fromJson(input, Command.class);
         Item item = gson.fromJson(input, Item.class);
-        System.out.println(item.toString());
-        if(item.getName().equals("username")) {
-            usernames.add(item.getDescription());
+        System.out.println(command.toString());
+        if(command.getCommand()!= null) {
+            if (command.getCommand().equals("USER:")) {
+                if (!usernames.contains(command.getUsername())) {
+                    usernames.add(command.getUsername());
+                    System.out.println(command.getUsername());
+                }
+            }
+            else if(command.getCommand().equals("BID:")) {
+                Item selectedItem = items.get(command.getItemName());
+                System.out.println(command.getPrice());
+                selectedItem.setCurrPrice(command.getPrice());
+                if(selectedItem.getCurrPrice() >= selectedItem.getMaxPrice()) {
+
+                }
+            }
+        }
+        if(item.getName()!=null) {
+            System.out.println(item.toString());
+
+                usernames.add(item.getDescription());
+
         }
         this.setChanged();              //server has changed
         this.notifyObservers(items);         //update all clients

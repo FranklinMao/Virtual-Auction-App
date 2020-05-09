@@ -7,9 +7,11 @@
    <children>
       <HBox layoutX="10.0" layoutY="14.0" prefHeight="170.0" prefWidth="814.0">
          <children>
-            <ListView fx:id="itemsList" prefHeight="170.0" prefWidth="546.0" />
-            <TextArea fx:id="historyField" prefHeight="170.0" prefWidth="254.0" promptText="Auction Log" />
+            <ListView fx:id="itemsList" prefHeight="170.0" prefWidth="565.0" />
+            <TextArea fx:id="historyField" prefHeight="170.0" prefWidth="258.0" promptText="Auction Log" />
          </children></HBox>
       <Button fx:id="quitButton" layoutX="523.0" layoutY="336.0" mnemonicParsing="false" onAction="#quitButton" prefHeight="49.0" prefWidth="62.0" text="QUIT" textFill="#b50a0a" />
+      <TextField fx:id="bidField" layoutX="235.0" layoutY="311.0" promptText="Bidding amount($):" />
+      <Button fx:id="bidButton" layoutX="384.0" layoutY="311.0" mnemonicParsing="false" onAction="#sendBid" onKeyPressed="#sendBid" text="BID" />
    </children>
 </AnchorPane>

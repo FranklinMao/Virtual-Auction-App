@@ -84,6 +84,9 @@ public class ClientHandler implements Runnable, Observer {
             }
             toClient.flush();
         }
-
+        if(arg instanceof Command) {
+            toClient.println(gson.toJson(arg, Command.class));
+            toClient.flush();
+        }
     }
 }

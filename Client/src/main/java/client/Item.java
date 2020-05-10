@@ -12,9 +12,9 @@ public class Item {
     private String name;
 
     private String description;
+
     private double minPrice;
     private double endTime;
-
     private double maxPrice;    //once bidding reaches this price, item is sold
 
     private double currPrice;
@@ -35,6 +35,10 @@ public class Item {
 
     public String getDescription() {
         return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
     public double getMaxPrice() {
         return maxPrice;

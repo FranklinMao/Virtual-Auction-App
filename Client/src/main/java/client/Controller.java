@@ -59,6 +59,7 @@ public class Controller {
         double bidAmount = Double.parseDouble(bidField.getText());
         Item selectedItem = itemsList.getSelectionModel().getSelectedItem();
         if(selectedItem == null) return;
+        if(selectedItem.getDescription().equals("SOLD!")) return;
         if(bidAmount <= selectedItem.getCurrPrice()) {
             Alert a = new Alert(Alert.AlertType.ERROR, "Enter a higher bid amount!", ButtonType.OK);
             a.showAndWait();
@@ -73,7 +74,7 @@ public class Controller {
     }
 
 
-    private void updateLog() {
+    public void updateLog() {
         historyField.setText(historyLog);
     }
 }

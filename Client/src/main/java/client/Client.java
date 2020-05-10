@@ -52,8 +52,20 @@ public class Client extends Application {
                         System.out.println("From server: " + input);
                         Gson gson = new Gson();
                         Item item = gson.fromJson(input, Item.class);
-                        System.out.println(item.toString());
-                        items.put(item.getName(), item);          //TODO: Need to make sure it correctly detects duplicates, hashmap?
+                        Command command = gson.fromJson(input, Command.class);
+                        //System.out.println(newRequest.toString());
+                        if(item.getName() != null) {
+                            System.out.println(item.toString());
+                            items.put(item.getName(), item);        //TODO: Need to make sure it correctly detects duplicates, hashmap?
+                        }
+                        else if (command.getCommand() != null) {
+                            if(command.getCommand().equals("SELL:")) {
+                                Item soldItem = items.get(command.getItemName());
+                                soldItem.setDescription("SOLD!");
+                                controller.historyLog += soldItem.getName()+" has been sold to " + command.getUsername() + " for $" + command.getPrice() +"\n";
+                                Platform.runLater(() -> controller.updateLog());
+                            }
+                        }
 
                         Platform.runLater(() -> controller.updateItems(items));
                     }

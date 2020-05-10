@@ -80,7 +80,9 @@ public class Server extends Observable {
                 System.out.println(command.getPrice());
                 selectedItem.setCurrPrice(command.getPrice());
                 if(selectedItem.getCurrPrice() >= selectedItem.getMaxPrice()) {
-
+                   Item item1 = items.remove(selectedItem.getName());
+                   this.setChanged();
+                   this.notifyObservers(new Command("SELL:", command.getUsername(), item1.getName(), item1.getCurrPrice()));
                 }
             }
         }

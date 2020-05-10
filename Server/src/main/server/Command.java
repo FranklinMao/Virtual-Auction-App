@@ -3,9 +3,9 @@ public class Command {
     private final String command;
     private final String username;
     private final String itemName;
-    private final double price;
+    private final Double price;
 
-    public Command(String command, String username, String itemName, double price) {
+    public Command(String command, String username, String itemName, Double price) {
         this.command = command;
         this.username = username;
         this.itemName = itemName;
@@ -20,7 +20,7 @@ public class Command {
         return username;
     }
 
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
 

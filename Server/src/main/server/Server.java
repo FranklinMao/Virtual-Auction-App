@@ -73,6 +73,13 @@ public class Server extends Observable {
                 if (!usernames.contains(command.getUsername())) {
                     usernames.add(command.getUsername());
                     System.out.println(command.getUsername());
+                    this.setChanged();
+                    this.notifyObservers(new Command("VALID:", command.getUsername(), "", null));
+
+                }
+                else {
+                    this.setChanged();
+                    this.notifyObservers(new Command("INVALID:", command.getUsername(), "", null));
                 }
             }
             else if(command.getCommand().equals("BID:")) {
@@ -84,9 +91,13 @@ public class Server extends Observable {
                    this.setChanged();
                    this.notifyObservers(new Command("SELL:", command.getUsername(), item1.getName(), item1.getCurrPrice()));
                 }
+                else {
+                    this.setChanged();
+                    this.notifyObservers(new Command("BID:", command.getUsername(), selectedItem.getName(), selectedItem.getCurrPrice()));
+                }
             }
         }
-        if(item.getName()!=null) {
+        else if(item.getName()!=null) {
             System.out.println(item.toString());
 
                 usernames.add(item.getDescription());

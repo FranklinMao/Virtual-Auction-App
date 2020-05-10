@@ -14,6 +14,9 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
@@ -31,7 +34,9 @@ public class Client extends Application {
     private BufferedReader fromServer;
     private static PrintWriter toServer;
     private Controller controller;
+    private LoginController loginController;
     private String username;
+    private Boolean isNameValid = false;
     private Map<String, Item> items = new HashMap<>();
     public static void main(String[] args) {
 
@@ -64,6 +69,24 @@ public class Client extends Application {
                                 soldItem.setDescription("SOLD!");
                                 controller.historyLog += soldItem.getName()+" has been sold to " + command.getUsername() + " for $" + command.getPrice() +"\n";
                                 Platform.runLater(() -> controller.updateLog());
+                            }
+                            System.out.println(command.getCommand());
+                            if(command.getCommand().equals("BID:")) {
+                                Item bidItem = items.get(command.getItemName());
+                                controller.historyLog += (command.getUsername() + " bid $" + bidItem.getCurrPrice() + " for " + bidItem.getName() + "\n");
+                                Platform.runLater(() -> controller.updateLog());
+                            }
+                            if(command.getCommand().equals("INVALID:")) {
+                                synchronized (loginController) {
+                                    loginController.loggedInProperty().set(false);
+                                    loginController.notify();
+                                }
+                            }
+                            if(command.getCommand().equals("VALID:")) {
+                                synchronized (loginController) {
+                                    loginController.loggedInProperty().set(true);
+                                    loginController.notify();
+                                }
                             }
                         }
 
@@ -146,14 +169,29 @@ public class Client extends Application {
         loginStage.setScene(loginScene);
         loginStage.setAlwaysOnTop(true);
         loginStage.show();
-        LoginController loginController = loginLoader.getController();
+        loginController = loginLoader.getController();
         loginController.loggedInProperty().addListener((obs, wasLoggedIn, isNowLoggedIn) -> {
-            if(isNowLoggedIn) {
+            if (isNowLoggedIn) {
                 System.out.println("a new username exists");
                 username = loginController.usernameField.getText(); //set username to the inputted name at login
                 controller.username = username;
-                loginStage.hide();
-                sentToServer(new Command("USER:", username, "", 0));    //TODO: check if username is valid/no duplicates
+                try {
+                    synchronized (loginController) {
+                        sentToServer(new Command("USER:", username, "", 0));    //TODO: check if username is valid/no duplicates
+                        loginController.wait();
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if(loginController.loggedInProperty().get()) {
+                    loginController.validLabel.setText("VALID USERNAME!");
+                    controller.userField.setText(username);
+                    loginStage.hide();
+                }
+                else {
+                    System.out.println("INVALID USER IS TAKEN");
+                    loginController.validLabel.setText("USERNAME IS INVALID/TAKEN!");
+                }
             }
         });
 

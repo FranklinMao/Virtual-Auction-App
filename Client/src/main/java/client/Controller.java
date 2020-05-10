@@ -27,6 +27,8 @@ public class Controller {
     public String historyLog;
 
     public Object request;
+    public Label userField;
+
     public void initialize() {
         System.out.println("controller created");
         Pattern pattern = Pattern.compile("\\d*\\.?\\d{0,2}");
@@ -69,7 +71,7 @@ public class Controller {
 
         request = new Command("BID:", username, selectedItem.getName(), bidAmount);
         notify();   //tells the writer thread to resume and send to server
-        historyLog += ("You(" + username +") " + "bid $" + bidAmount + " for " + selectedItem.getName() + "\n");
+        //historyLog += ("You(" + username +") " + "bid $" + bidAmount + " for " + selectedItem.getName() + "\n");
         updateLog();
     }
 

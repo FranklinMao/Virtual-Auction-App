@@ -93,7 +93,7 @@ public class Server extends Observable {
                 }
                 else {
                     this.setChanged();
-                    this.notifyObservers(new Command("BID:", command.getUsername(), selectedItem.getName(), selectedItem.getCurrPrice()));
+                    this.notifyObservers(new Command("BID:", command.getUsername(), selectedItem.getName(), command.getPrice()));
                 }
             }
         }

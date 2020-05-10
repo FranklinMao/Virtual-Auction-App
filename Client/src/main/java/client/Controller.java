@@ -12,6 +12,8 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
+import javafx.scene.layout.Background;
+import javafx.scene.paint.Color;
 
 import java.util.Map;
 import java.util.function.UnaryOperator;
@@ -37,6 +39,22 @@ public class Controller {
         });
         bidField.setTextFormatter(formatter);
         historyLog = "";
+        itemsList.setCellFactory(param -> new ListCell<Item>() {
+            @Override
+            protected void updateItem(Item item, boolean empty) {
+                super.updateItem(item, empty);
+                if(empty || item == null || item.getName() == null) {
+                    setText(null);
+                }
+                else if (item.getDescription().equals("SOLD!")) {
+                    setText(item.getName() + " has been " + item.getDescription());
+                    setTextFill(Color.RED);
+                }
+                else {
+                    setText(item.getName() + ", Description:" + item.getDescription() + ", Min Price: $" + item.getMinPrice() + ", Current Price: $" + item.getCurrPrice());
+                }
+            }
+        });
     }
     public void quitButton(ActionEvent event) {
         System.exit(0);
@@ -54,6 +72,7 @@ public class Controller {
             }
 
         itemsList.setItems(observableItems);
+
     }
 
     public synchronized void sendBid(ActionEvent actionEvent) {
@@ -62,7 +81,7 @@ public class Controller {
         Item selectedItem = itemsList.getSelectionModel().getSelectedItem();
         if(selectedItem == null) return;
         if(selectedItem.getDescription().equals("SOLD!")) return;
-        if(bidAmount <= selectedItem.getCurrPrice()) {
+        if(bidAmount <= selectedItem.getCurrPrice() || bidAmount < selectedItem.getMinPrice()) {
             Alert a = new Alert(Alert.AlertType.ERROR, "Enter a higher bid amount!", ButtonType.OK);
             a.showAndWait();
             return;        //check if bid amount is valid

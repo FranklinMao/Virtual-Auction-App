@@ -18,6 +18,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 import java.io.BufferedReader;
@@ -73,7 +74,7 @@ public class Client extends Application {
                             System.out.println(command.getCommand());
                             if(command.getCommand().equals("BID:")) {
                                 Item bidItem = items.get(command.getItemName());
-                                controller.historyLog += (command.getUsername() + " bid $" + bidItem.getCurrPrice() + " for " + bidItem.getName() + "\n");
+                                controller.historyLog += (command.getUsername() + " bid $" + command.getPrice() + " for " + bidItem.getName() + "\n");
                                 Platform.runLater(() -> controller.updateLog());
                             }
                             if(command.getCommand().equals("INVALID:")) {
@@ -198,7 +199,10 @@ public class Client extends Application {
 
         Scene scene = new Scene(root, 1200, 700); //set window size
         setUpNetworking();
-        primaryStage.setTitle("Auction Client");
+        HBox hBox = (HBox) root.getChildrenUnmodifiable().get(0);
+        root.autosize();
+        hBox.autosize();
+        primaryStage.setTitle("Virtual Auction Client");
         primaryStage.setScene(scene);
         primaryStage.show();
 

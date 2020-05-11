@@ -32,13 +32,17 @@ import java.util.Map;
 
 public class Client extends Application {
     private static String host = "localhost";
-    private BufferedReader fromServer;
+    private static BufferedReader fromServer;
     private static PrintWriter toServer;
+    public static boolean runThread = true;
     private Controller controller;
     private LoginController loginController;
     private String username;
     private Boolean isNameValid = false;
     private Map<String, Item> items = new HashMap<>();
+    private Thread readerT;
+    private Thread writerT;
+
     public static void main(String[] args) {
 
         launch(args);
@@ -49,63 +53,77 @@ public class Client extends Application {
         System.out.println("Connecting to..." + socky);
         fromServer = new BufferedReader(new InputStreamReader(socky.getInputStream()));
         toServer = new PrintWriter(socky.getOutputStream());
-        Thread readerT = new Thread(() -> {
+        readerT = new Thread(() -> {
             String input;
 
-            try {
-                while (((input = fromServer.readLine()) != null)) {
-                    synchronized (this) {
-                        System.out.println("From server: " + input);
-                        Gson gson = new Gson();
-                        Item item = gson.fromJson(input, Item.class);
-                        Command command = gson.fromJson(input, Command.class);
-                        //System.out.println(newRequest.toString());
-                        if(item.getName() != null) {
-                            System.out.println(item.toString());
-                            items.put(item.getName(), item);        //TODO: Need to make sure it correctly detects duplicates, hashmap?
-                        }
-                        else if (command.getCommand() != null) {
-                            if(command.getCommand().equals("SELL:")) {
-                                Item soldItem = items.get(command.getItemName());
-                                soldItem.setDescription("SOLD!");
-                                controller.historyLog += soldItem.getName()+" has been sold to " + command.getUsername() + " for $" + command.getPrice() +"\n";
-                                Platform.runLater(() -> controller.updateLog());
-                            }
-                            System.out.println(command.getCommand());
-                            if(command.getCommand().equals("BID:")) {
-                                Item bidItem = items.get(command.getItemName());
-                                controller.historyLog += (command.getUsername() + " bid $" + command.getPrice() + " for " + bidItem.getName() + "\n");
-                                Platform.runLater(() -> controller.updateLog());
-                            }
-                            if(command.getCommand().equals("INVALID:")) {
-                                synchronized (loginController) {
-                                    loginController.loggedInProperty().set(false);
-                                    loginController.notify();
-                                }
-                            }
-                            if(command.getCommand().equals("VALID:")) {
-                                synchronized (loginController) {
-                                    loginController.loggedInProperty().set(true);
-                                    loginController.notify();
-                                }
-                            }
-                        }
 
-                        Platform.runLater(() -> controller.updateItems(items));
+
+                try {
+                    while (!readerT.isInterrupted() && ((input = fromServer.readLine()) != null)) {
+                        System.out.println(runThread);
+                        if (!runThread) {
+                            //controller.wait();
+                            controller.notify();
+                            return;
+                        }
+                        synchronized (this) {
+                            System.out.println("From server: " + input);
+                            Gson gson = new Gson();
+                            Item item = gson.fromJson(input, Item.class);
+                            Command command = gson.fromJson(input, Command.class);
+                            //System.out.println(newRequest.toString());
+                            if (item.getName() != null) {
+                                System.out.println(item.toString());
+                                items.put(item.getName(), item);        //TODO: Need to make sure it correctly detects duplicates, hashmap?
+                            } else if (command.getCommand() != null) {
+                                if (command.getCommand().equals("SELL:")) {
+                                    Item soldItem = items.get(command.getItemName());
+                                    soldItem.setDescription("SOLD!");
+                                    controller.historyLog += soldItem.getName() + " has been sold to " + command.getUsername() + " for $" + command.getPrice() + "\n";
+                                    Platform.runLater(() -> controller.updateLog());
+                                }
+                                System.out.println(command.getCommand());
+                                if (command.getCommand().equals("BID:")) {
+                                    Item bidItem = items.get(command.getItemName());
+                                    controller.historyLog += (command.getUsername() + " bid $" + command.getPrice() + " for " + bidItem.getName() + "\n");
+                                    Platform.runLater(() -> controller.updateLog());
+                                }
+                                if (command.getCommand().equals("INVALID:")) {
+                                    synchronized (loginController) {
+                                        loginController.loggedInProperty().set(false);
+                                        loginController.notify();
+                                    }
+                                }
+                                if (command.getCommand().equals("VALID:")) {
+                                    synchronized (loginController) {
+                                        loginController.loggedInProperty().set(true);
+                                        loginController.notify();
+                                    }
+                                }
+                            }
+
+                            Platform.runLater(() -> controller.updateItems(items));
+                        }
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
 
 
         });
-        Thread writerT = new Thread(() -> {
-            while (true) {
+        writerT = new Thread(() -> {
+            while (runThread) {
+
                 System.out.println("writer is working");
                 synchronized (controller) {
                     try {
                         controller.wait();
+                        if(!runThread) {
+                            controller.notify();
+                            readerT.interrupt();
+                            readerT.stop();     //TODO: change if necessary
+                            return;
+                        }
 
                         sentToServer(controller.request);
 
@@ -128,6 +146,7 @@ public class Client extends Application {
 //                    System.out.println(controller.request.toString());
                // }
             }
+            //controller.notify();
         });
         readerT.start();
         writerT.start();
@@ -207,4 +226,16 @@ public class Client extends Application {
         primaryStage.show();
 
     }
+
+
+    public static synchronized void quit() throws IOException {
+        runThread = false;
+
+        toServer.close();
+        fromServer.close();
+
+        System.exit(0);
+    }
+
+
 }

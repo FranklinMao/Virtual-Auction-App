@@ -12,9 +12,19 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
+import javafx.scene.media.AudioClip;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
@@ -30,6 +40,9 @@ public class Controller {
 
     public Object request;
     public Label userField;
+    public ImageView itemImage;
+    public AudioClip audioClip;
+    public MediaPlayer mediaPlayer;
 
     public void initialize() {
         System.out.println("controller created");
@@ -55,8 +68,19 @@ public class Controller {
                 }
             }
         });
+        Media media = new Media(getClass().getResource("/REGISTER.wav").toString());
+        audioClip = new AudioClip(getClass().getResource("/REGISTER.wav").toString());
+        audioClip.stop();
+        mediaPlayer = new MediaPlayer(media);
+        mediaPlayer.setAutoPlay(true);
     }
-    public void quitButton(ActionEvent event) {
+
+    public synchronized void quitButton(ActionEvent event) throws IOException, InterruptedException {
+        Client.runThread = false;
+        notify();
+        wait();
+
+        Client.quit();
         System.exit(0);
     }
 
@@ -91,11 +115,24 @@ public class Controller {
         request = new Command("BID:", username, selectedItem.getName(), bidAmount);
         notify();   //tells the writer thread to resume and send to server
         //historyLog += ("You(" + username +") " + "bid $" + bidAmount + " for " + selectedItem.getName() + "\n");
+//        mediaPlayer.seek(Duration.ZERO);
+//        mediaPlayer.play();
+        audioClip.play();
         updateLog();
     }
 
 
     public void updateLog() {
         historyField.setText(historyLog);
+    }
+
+    public void updateImage(MouseEvent mouseEvent) {
+        Item selectedItem = itemsList.getSelectionModel().getSelectedItem();
+        if(selectedItem == null) return;
+        try {
+            itemImage.setImage(new Image(getClass().getResource("/" + selectedItem.getName() + ".jpg").toString(), true));
+        } catch (Exception e) {
+            itemImage.setAccessibleText("Image not found");
+        }
     }
 }

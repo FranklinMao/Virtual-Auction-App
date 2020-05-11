@@ -5,12 +5,12 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.Controller">
+<AnchorPane fx:id="anchorPane" prefHeight="677.0" prefWidth="1055.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.Controller">
    <children>
-      <HBox layoutX="12.0" layoutY="50.0" prefHeight="170.0" prefWidth="842.0">
+      <HBox layoutX="12.0" layoutY="50.0" prefHeight="170.0" prefWidth="1040.0">
          <children>
-            <ListView fx:id="itemsList" onMouseClicked="#updateImage" prefHeight="170.0" prefWidth="565.0" />
-            <TextArea fx:id="historyField" prefHeight="170.0" prefWidth="259.0" promptText="Auction Log" />
+            <ListView fx:id="itemsList" onMouseClicked="#updateImage" prefHeight="170.0" prefWidth="702.0" />
+            <TextArea fx:id="historyField" prefHeight="170.0" prefWidth="339.0" promptText="Auction Log" />
          </children></HBox>
       <Button fx:id="quitButton" layoutX="693.0" layoutY="460.0" mnemonicParsing="false" onAction="#quitButton" prefHeight="49.0" prefWidth="62.0" text="QUIT" textFill="#b50a0a" />
       <TextField fx:id="bidField" layoutX="235.0" layoutY="311.0" promptText="Bidding amount($):" />
@@ -22,6 +22,6 @@
             <Font size="22.0" />
          </font>
       </Label>
-      <ImageView fx:id="itemImage" fitHeight="150.0" fitWidth="200.0" layoutX="579.0" layoutY="249.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView fx:id="itemImage" fitHeight="170.0" fitWidth="233.0" layoutX="579.0" layoutY="249.0" pickOnBounds="true" preserveRatio="true" />
    </children>
 </AnchorPane>

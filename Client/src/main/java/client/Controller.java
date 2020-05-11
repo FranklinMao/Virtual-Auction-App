@@ -11,11 +11,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.event.ActionEvent;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
+import javafx.scene.layout.*;
 import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -43,9 +44,15 @@ public class Controller {
     public ImageView itemImage;
     public AudioClip audioClip;
     public MediaPlayer mediaPlayer;
+    public AnchorPane anchorPane;
 
     public void initialize() {
         System.out.println("controller created");
+        BackgroundImage myBackground = new BackgroundImage(new Image(getClass().getResource("/AuctionBackground2.jpg").toString()), BackgroundRepeat.REPEAT,
+                BackgroundRepeat.REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT);
+
+        BackgroundFill myBackgroundFill = new BackgroundFill(Color.AZURE, new CornerRadii(1), new Insets(0.0,0.0,0.0,0.0));
+        anchorPane.setBackground(new Background(myBackground));
         Pattern pattern = Pattern.compile("\\d*\\.?\\d{0,2}");
         TextFormatter formatter = new TextFormatter((UnaryOperator<TextFormatter.Change>) change -> {
             return pattern.matcher(change.getControlNewText()).matches() ? change : null;
@@ -62,9 +69,11 @@ public class Controller {
                 else if (item.getDescription().equals("SOLD!")) {
                     setText(item.getName() + " has been " + item.getDescription());
                     setTextFill(Color.RED);
+                    BackgroundFill backgroundFill = new BackgroundFill(Color.BLACK, new CornerRadii(1), new Insets(0.0,0.0,0.0,0.0));
+                    setBackground(new Background(backgroundFill));
                 }
                 else {
-                    setText(item.getName() + ", Description:" + item.getDescription() + ", Min Price: $" + item.getMinPrice() + ", Current Price: $" + item.getCurrPrice());
+                    setText(item.getName() + ", Description: " + item.getDescription() + ", Min Price: $" + item.getMinPrice() + ", Current Price: $" + item.getCurrPrice());
                 }
             }
         });
@@ -73,6 +82,7 @@ public class Controller {
         audioClip.stop();
         mediaPlayer = new MediaPlayer(media);
         mediaPlayer.setAutoPlay(true);
+        updateLog();
     }
 
     public synchronized void quitButton(ActionEvent event) throws IOException, InterruptedException {

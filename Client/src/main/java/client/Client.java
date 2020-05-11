@@ -19,6 +19,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.BufferedReader;
@@ -80,12 +81,13 @@ public class Client extends Application {
                                     Item soldItem = items.get(command.getItemName());
                                     soldItem.setDescription("SOLD!");
                                     controller.historyLog += soldItem.getName() + " has been sold to " + command.getUsername() + " for $" + command.getPrice() + "\n";
-                                    Platform.runLater(() -> controller.updateLog());
+                                    //Platform.runLater(() -> controller.updateLog());
                                 }
                                 System.out.println(command.getCommand());
-                                if (command.getCommand().equals("BID:")) {
+                                if (command.getCommand().equals("LOG:")) {
                                     Item bidItem = items.get(command.getItemName());
-                                    controller.historyLog += (command.getUsername() + " bid $" + command.getPrice() + " for " + bidItem.getName() + "\n");
+                                    controller.historyLog = command.getItemName();
+                                    //controller.historyLog += (command.getUsername() + " bid $" + command.getPrice() + " for " + bidItem.getName() + "\n");
                                     Platform.runLater(() -> controller.updateLog());
                                 }
                                 if (command.getCommand().equals("INVALID:")) {
@@ -217,6 +219,7 @@ public class Client extends Application {
 
 
         Scene scene = new Scene(root, 1200, 700); //set window size
+
         setUpNetworking();
         HBox hBox = (HBox) root.getChildrenUnmodifiable().get(0);
         root.autosize();

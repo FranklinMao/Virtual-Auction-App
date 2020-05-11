@@ -16,6 +16,7 @@ import java.util.*;
 public class Server extends Observable {
     private HashMap<String, Item> items;
     private HashSet<String> usernames;
+    private String historyLog = "";
     public static void main(String[] args){
 
         new Server().runServer();
@@ -75,7 +76,8 @@ public class Server extends Observable {
                     System.out.println(command.getUsername());
                     this.setChanged();
                     this.notifyObservers(new Command("VALID:", command.getUsername(), "", null));
-
+                    this.setChanged();
+                    this.notifyObservers(new Command("LOG:", "", historyLog, 0.00));
                 }
                 else {
                     this.setChanged();
@@ -90,11 +92,16 @@ public class Server extends Observable {
                    Item item1 = items.remove(selectedItem.getName());
                    this.setChanged();
                    this.notifyObservers(new Command("SELL:", command.getUsername(), item1.getName(), item1.getCurrPrice()));
+                   historyLog += item1.getName() + " has been sold to " + command.getUsername() + " for $" + command.getPrice() + "\n";
                 }
                 else {
-                    this.setChanged();
-                    this.notifyObservers(new Command("BID:", command.getUsername(), selectedItem.getName(), command.getPrice()));
+//                    this.setChanged();
+//                    this.notifyObservers(new Command("BID:", command.getUsername(), selectedItem.getName(), command.getPrice()));
+                    historyLog += (command.getUsername() + " bid $" + command.getPrice() + " for " + command.getItemName() + "\n");
                 }
+                this.setChanged();
+                this.notifyObservers(new Command("LOG:", "", historyLog, 0.00));
+                System.out.println("new history");
             }
         }
         else if(item.getName()!=null) {

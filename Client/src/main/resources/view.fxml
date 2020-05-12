@@ -15,8 +15,8 @@
       <Button fx:id="quitButton" layoutX="693.0" layoutY="460.0" mnemonicParsing="false" onAction="#quitButton" prefHeight="49.0" prefWidth="62.0" text="QUIT" textFill="#b50a0a" />
       <TextField fx:id="bidField" layoutX="235.0" layoutY="311.0" promptText="Bidding amount($):" />
       <Button fx:id="bidButton" layoutX="384.0" layoutY="311.0" mnemonicParsing="false" onAction="#sendBid" onKeyPressed="#sendBid" text="BID" />
-      <Label layoutX="34.0" layoutY="14.0" prefHeight="26.0" prefWidth="107.0" text="Username:" />
-      <Label fx:id="userField" layoutX="153.0" layoutY="18.0" prefHeight="18.0" prefWidth="149.0" text="guest" />
+      <Label layoutX="34.0" layoutY="14.0" prefHeight="26.0" prefWidth="107.0" text="Username:" textFill="#b9d507" />
+      <Label fx:id="userField" layoutX="153.0" layoutY="18.0" prefHeight="18.0" prefWidth="149.0" text="guest" textFill="#aeca0d" />
       <Label layoutX="16.0" layoutY="231.0" prefHeight="36.0" prefWidth="233.0" text="Auction Items">
          <font>
             <Font size="22.0" />

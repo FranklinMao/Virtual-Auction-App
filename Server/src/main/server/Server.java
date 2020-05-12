@@ -91,8 +91,8 @@ public class Server extends Observable {
                 if(selectedItem.getCurrPrice() >= selectedItem.getMaxPrice()) {
                    Item item1 = items.remove(selectedItem.getName());
                    this.setChanged();
-                   this.notifyObservers(new Command("SELL:", command.getUsername(), item1.getName(), item1.getCurrPrice()));
-                   historyLog += item1.getName() + " has been sold to " + command.getUsername() + " for $" + command.getPrice() + "\n";
+                   this.notifyObservers(new Command("SELL:", command.getUsername(), selectedItem.getName(), selectedItem.getCurrPrice()));
+                   historyLog += selectedItem.getName() + " has been sold to " + command.getUsername() + " for $" + command.getPrice() + "\n";
                 }
                 else {
 //                    this.setChanged();

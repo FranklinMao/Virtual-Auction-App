@@ -15,11 +15,12 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 public class ClientHandler implements Runnable, Observer {
-    private Server server;
-    private Socket clientSocket;
+    private final Server server;
+    private final Socket clientSocket;
     private BufferedReader fromClient;
     private PrintWriter toClient;
     private String username;
@@ -55,7 +56,7 @@ public class ClientHandler implements Runnable, Observer {
                 System.out.println("From client:" + input);
                 server.processRequest(input);
             }
-        } catch (IOException e) {
+        } catch (IOException | NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
     }
@@ -78,6 +79,12 @@ public class ClientHandler implements Runnable, Observer {
         System.out.println("Sending to client");
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
+        if(arg instanceof ItemsDB) {
+            for (Item i : ((ItemsDB) arg).listItems()) {
+                toClient.println(gson.toJson(i));
+            }
+            toClient.flush();
+        }
         if(arg instanceof HashMap<?,?>) {   //send all items in server to client
             for (Map.Entry<?,?> i : ((HashMap<?, ?>) arg).entrySet()) {
                 toClient.println(gson.toJson(i.getValue()));

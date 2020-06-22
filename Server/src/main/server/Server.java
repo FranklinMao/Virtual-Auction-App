@@ -11,9 +11,13 @@ import com.google.gson.Gson;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.*;
 
 public class Server extends Observable {
+    private ItemsDB itemsDB;
     private HashMap<String, Item> items;
     private HashSet<String> usernames;
     private String historyLog = "";
@@ -29,6 +33,7 @@ public class Server extends Observable {
 
     private void runServer() {
         try {
+            itemsDB = new ItemsDB();
             Init();
             setUpNetworking();
         } catch (Exception e) {
@@ -36,19 +41,18 @@ public class Server extends Observable {
         }
     }
 
-    private synchronized void Init() throws FileNotFoundException {
-        File file = new File("src/main/server/Items.txt");
-        Scanner scan = new Scanner(file);
+    private synchronized void Init() throws IOException {
+        InputStream file = ClassLoader.getSystemResourceAsStream("Items.txt");
+        BufferedReader scan = new BufferedReader(new InputStreamReader(file));
         String line;
 
         Gson gson = new Gson();
-        while(scan.hasNextLine()) {
-            line = scan.nextLine();
+        while((line = scan.readLine()) != null) {
             Item initialItem = gson.fromJson(line, Item.class);
             items.put(initialItem.getName(), initialItem);
-
+            itemsDB.insert(initialItem);
         }
-
+        itemsDB.listItems();
     }
 
     private void setUpNetworking() throws Exception {
@@ -64,32 +68,52 @@ public class Server extends Observable {
         }
     }
 
-    protected void processRequest(String input) {
+    protected synchronized void processRequest(String input) throws NoSuchAlgorithmException {
         Gson gson = new Gson();
         Command command = gson.fromJson(input, Command.class);
         Item item = gson.fromJson(input, Item.class);
         System.out.println(command.toString());
         if(command.getCommand()!= null) {
             if (command.getCommand().equals("USER:")) {
-                if (!usernames.contains(command.getUsername())) {
+                if (!itemsDB.hasUser(command.getUsername())) {
                     usernames.add(command.getUsername());
-                    System.out.println(command.getUsername());
+                    SecureRandom random = new SecureRandom();
+                    byte[] salt = new byte[20];
+                    random.nextBytes(salt);
+                    byte[] pass = command.getItemName().getBytes();
+                    MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+
+                    byte[] saltedPassword = (pass.toString() + salt.toString()).getBytes();
+//                    System.arraycopy(pass, 0, saltedPassword, 0, pass.length);
+//                    System.arraycopy(salt, 0, saltedPassword, pass.length, salt.length);
+                    byte[] passHash = messageDigest.digest(saltedPassword);
+                    System.out.println(passHash);
+                    itemsDB.storeID(command.getUsername(), passHash, salt);
+                    System.out.println(command.getItemName());
                     this.setChanged();
                     this.notifyObservers(new Command("VALID:", command.getUsername(), "", null));
                     this.setChanged();
                     this.notifyObservers(new Command("LOG:", "", historyLog, 0.00));
                 }
+//                else if (itemsDB.hasUser(command.getUsername()) && itemsDB.passwordMatch(command.getUsername(), command.getItemName())) {
+//                    this.setChanged();
+//                    this.notifyObservers(new Command("VALID:", command.getUsername(), "", null));
+//                    this.setChanged();
+//                    this.notifyObservers(new Command("LOG:", "", historyLog, 0.00));
+//                }
                 else {
                     this.setChanged();
                     this.notifyObservers(new Command("INVALID:", command.getUsername(), "", null));
                 }
             }
             else if(command.getCommand().equals("BID:")) {
-                Item selectedItem = items.get(command.getItemName());
+                if(command.getPrice() <= itemsDB.getItem(command.getItemName()).getCurrPrice()) //check if bid is valid on server side
+                    return;
+                itemsDB.updateItem(command.getItemName(), command.getPrice());
+                Item selectedItem = itemsDB.getItem(command.getItemName());
                 System.out.println(command.getPrice());
-                selectedItem.setCurrPrice(command.getPrice());
                 if(selectedItem.getCurrPrice() >= selectedItem.getMaxPrice()) {
-                   Item item1 = items.remove(selectedItem.getName());
+                    itemsDB.removeItem(selectedItem.getName());
                    this.setChanged();
                    this.notifyObservers(new Command("SELL:", command.getUsername(), selectedItem.getName(), selectedItem.getCurrPrice()));
                    historyLog += selectedItem.getName() + " has been sold to " + command.getUsername() + " for $" + command.getPrice() + "\n";
@@ -110,8 +134,9 @@ public class Server extends Observable {
                 usernames.add(item.getDescription());
 
         }
+        System.out.println(itemsDB.listItems());
         this.setChanged();              //server has changed
-        this.notifyObservers(items);         //update all clients
+        this.notifyObservers(itemsDB);         //update all clients
     }
 }
 

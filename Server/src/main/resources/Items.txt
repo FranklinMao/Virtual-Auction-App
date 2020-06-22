@@ -1,0 +1,5 @@
+{"name": "Medieval Sword", "description":"Antique from Middle Ages","minPrice":40.00,"endTime":10.0, "maxPrice":800.00}
+{"name": "Lightsaber", "description":"Ancient jedi weapon","minPrice":100.00,"endTime":20.0, "maxPrice":500.00}
+{"name": "Mjolnir", "description":"Hammer of Norse Gods","minPrice":30.00,"endTime":30.0, "maxPrice":100.00}
+{"name": "iPhone", "description":"Used iPhone - 64GB","minPrice":500.0,"endTime":10.0, "maxPrice":1000.00}
+{"name": "Rolex", "description":"May or may not be real","minPrice":10000,"endTime":10.0, "maxPrice":15000.00}

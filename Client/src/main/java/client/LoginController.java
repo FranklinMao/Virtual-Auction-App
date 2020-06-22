@@ -12,6 +12,7 @@ public class LoginController {
     public Button loginButton;
     public final BooleanProperty loggedIn = new SimpleBooleanProperty();
     public Label validLabel;
+    public TextField passwordField;
 
     public BooleanProperty loggedInProperty() {
         return loggedIn;

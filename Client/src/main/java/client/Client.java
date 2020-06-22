@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -60,7 +61,7 @@ public class Client extends Application {
 
 
                 try {
-                    while (!readerT.isInterrupted() && ((input = fromServer.readLine()) != null)) {
+                    while (!socky.isClosed() && !readerT.isInterrupted() && ((input = fromServer.readLine()) != null)) {
                         System.out.println(runThread);
                         if (!runThread) {
                             //controller.wait();
@@ -107,8 +108,8 @@ public class Client extends Application {
                             Platform.runLater(() -> controller.updateItems(items));
                         }
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (IOException e) {
+                    System.out.println("Server is down!");
                 }
 
 
@@ -150,6 +151,7 @@ public class Client extends Application {
             }
             //controller.notify();
         });
+
         readerT.start();
         writerT.start();
     }
@@ -196,10 +198,11 @@ public class Client extends Application {
             if (isNowLoggedIn) {
                 System.out.println("a new username exists");
                 username = loginController.usernameField.getText(); //set username to the inputted name at login
+                String password = loginController.passwordField.getText();
                 controller.username = username;
                 try {
                     synchronized (loginController) {
-                        sentToServer(new Command("USER:", username, "", 0));    //TODO: check if username is valid/no duplicates
+                        sentToServer(new Command("USER:", username, password, 0));    //TODO: check if username is valid/no duplicates
                         loginController.wait();
                     }
                 } catch (InterruptedException e) {
@@ -237,7 +240,7 @@ public class Client extends Application {
         toServer.close();
         fromServer.close();
 
-        System.exit(0);
+        Platform.exit();
     }
 
 

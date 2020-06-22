@@ -22,6 +22,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import javax.sound.midi.Soundbank;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -132,24 +133,13 @@ public class Client extends Application {
 
 
                     } catch (InterruptedException e) {
+                        System.out.println("Server is down");
                         e.printStackTrace();
                     }
                 }
-                //synchronized (controller)
 
-//                while(!controller.activeRequest){
-//                    //Thread.sleep(100);
-//                }
-                //toServer.wait();
-//                synchronized (controller.activeRequest) {
-//                    System.out.println("bid works!");
-//                    controller.activeRequest.lock();
-//                    sentToServer(controller.request);
-//                    System.out.println("request success!");
-//                    System.out.println(controller.request.toString());
-               // }
             }
-            //controller.notify();
+
         });
 
         readerT.start();
